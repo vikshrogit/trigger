@@ -16,8 +16,12 @@ jobs:
       - name: Get latest tag
         id: get-latest
         run: |
-          latest=$(git tag --sort=-v:refname | grep ^v | head -n 1 || echo "v0.0.0")
-          echo "latest=$latest" >> $GITHUB_OUTPUT
+          tag=$(git tag --sort=-v:refname | grep ^v | head -n 1)
+          if [[ -z "$tag" ]]; then
+            echo "latest=v0.0.0" >> $GITHUB_OUTPUT
+          else
+            echo "latest=$tag" >> $GITHUB_OUTPUT
+          fi
 
       - name: Bump tag (patch)
         id: set-tag
@@ -36,6 +40,7 @@ jobs:
           git config user.email github-actions@github.com
           git tag ${{ steps.set-tag.outputs.new_tag }}
           git push origin ${{ steps.set-tag.outputs.new_tag }}
+  
 
   build-and-release:
     needs: auto-tag
