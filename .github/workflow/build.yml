@@ -1,0 +1,98 @@
+name: Build CLI Trigger Binary
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-dev gcc
+          pip install -r requirements.txt
+          pip install nuitka
+
+      - name: Build Trigger Binary
+        run: |
+          nuitka trigger.py \
+            --onefile \
+            --standalone \
+            --output-dir=dist-linux \
+            --enable-plugin=python-runtime
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: dist-linux/
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Python & Nuitka
+        run: |
+          pip install -r requirements.txt
+          pip install nuitka
+
+      - name: Install MinGW if GCC not available
+        run: |
+          if (-not (Get-Command gcc -ErrorAction SilentlyContinue)) {
+            choco install mingw -y
+            $env:Path += ";C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          }
+
+      - name: Build Trigger Binary
+        run: |
+          nuitka trigger.py `
+            --onefile `
+            --standalone `
+            --output-dir=dist-windows `
+            --mingw64 `
+            --windows-disable-console `
+            --enable-plugin=python-runtime
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist-windows/
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Download Linux Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: dist-linux
+
+      - name: Download Windows Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+          path: dist-windows
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
+          files: |
+            dist-linux/*
+            dist-windows/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

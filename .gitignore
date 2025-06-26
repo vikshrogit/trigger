@@ -1,0 +1,7 @@
+.cache
+.cache/*
+*.json
+.idea
+.idea/*
+.venv
+.venv/*

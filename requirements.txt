@@ -1,0 +1,5 @@
+wheel
+setuptools
+requests
+pycryptodome
+beautifulsoup4
