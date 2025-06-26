@@ -1,0 +1,46 @@
+name: Auto Tag, Build & Release on main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  auto-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set-tag.outputs.new_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get latest tag
+        id: get-latest
+        run: |
+          latest=$(git tag --sort=-v:refname | grep ^v | head -n 1 || echo "v0.0.0")
+          echo "latest=$latest" >> $GITHUB_OUTPUT
+
+      - name: Bump tag (patch)
+        id: set-tag
+        run: |
+          latest="${{ steps.get-latest.outputs.latest }}"
+          IFS='.' read -ra ver <<< "${latest#v}"
+          ver[2]=$((ver[2]+1))
+          new_tag="v${ver[0]}.${ver[1]}.${ver[2]}"
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+
+      - name: Create tag & push
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag ${{ steps.set-tag.outputs.new_tag }}
+          git push origin ${{ steps.set-tag.outputs.new_tag }}
+
+  build-and-release:
+    needs: auto-tag
+    uses: "./.github/workflows/build.yml"
+    with:
+      tag: ${{ needs.auto-tag.outputs.tag }}
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}

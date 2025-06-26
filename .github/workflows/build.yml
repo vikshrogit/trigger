@@ -1,9 +1,14 @@
 name: Build CLI Trigger Binary
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      GH_PAT:
+        required: true
 
 jobs:
   build-linux:
@@ -38,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: dist-linux/trigger
+          path: dist-linux/
 
   build-windows:
     runs-on: windows-latest
@@ -77,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: dist-windows/trigger.exe
+          path: dist-windows
   release:
     needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
@@ -101,10 +106,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "Release ${{ github.ref_name }}"
+          tag_name: ${{ inputs.tag }}
+          name: "Release ${{ inputs.tag }}"
           files: |
             dist-linux/*
             dist-windows/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
