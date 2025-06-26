@@ -24,8 +24,7 @@ jobs:
           nuitka trigger.py \
             --onefile \
             --standalone \
-            --output-dir=dist-linux \
-            --enable-plugin=python-runtime
+            --output-dir=dist-linux
 
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
@@ -58,8 +57,7 @@ jobs:
             --standalone `
             --output-dir=dist-windows `
             --mingw64 `
-            --windows-disable-console `
-            --enable-plugin=python-runtime
+            --windows-disable-console 
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
