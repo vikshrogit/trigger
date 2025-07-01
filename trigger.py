@@ -118,7 +118,7 @@ class Trigger:
                     "application/signed-exchange;v=b3;q=0.7"
                 ),
                 "Accept-Language": "en-US,en;q=0.9",
-                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Encoding": "gzip, deflate",
                 "Connection": "keep-alive",
                 "Upgrade-Insecure-Requests": "1",
                 "Sec-Fetch-Site": "none",
@@ -135,7 +135,9 @@ class Trigger:
                 res = self.session.get(self.url)
             if res.status_code != 200:
                 raise Exception(res.text)
-            return res.content.decode('utf-8')
+            #print(res.headers)
+            #print(res.content)
+            return res.content.decode()
         return None
 
 
