@@ -20,8 +20,9 @@ jobs:
         id: get-latest
         run: |
           tag=$(git tag --sort=-v:refname | grep ^v | head -n 1)
+          echo "Current Release $tag"
           if [[ -z "$tag" ]]; then
-            echo "latest=v0.0.0" >> $GITHUB_OUTPUT
+            echo "latest=v0.0.1" >> $GITHUB_OUTPUT
           else
             echo "latest=$tag" >> $GITHUB_OUTPUT
           fi
@@ -30,6 +31,7 @@ jobs:
         id: set-tag
         run: |
           latest="${{ steps.get-latest.outputs.latest }}"
+          echo "Current Release $latest"
           IFS='.' read -ra ver <<< "${latest#v}"
           ver[2]=$((ver[2]+1))
           new_tag="v${ver[0]}.${ver[1]}.${ver[2]}"
