@@ -133,7 +133,10 @@ class Trigger:
             except Exception as e:
                 print(e)
                 res = self.session.get(self.url)
-            if res.status_code != 200:
+            if res.status_code == 403:
+                if self.bypass(res):
+                    res = self.session.get(self.url)
+            elif res.status_code != 200:
                 raise Exception(res.text)
             #print(res.headers)
             #print(res.content)
