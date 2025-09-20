@@ -21,10 +21,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt update
-          sudo apt install -y python3-dev gcc python3-requests patchelf ccache
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev gcc python3-requests patchelf ccache
           export PATH="/usr/lib/ccache:$PATH"
-          python3 -m pip install --upgrade pip setuptools
+          python3 -m pip install --upgrade pip setuptools --break-system-packages
           pip install -r requirements.txt --break-system-packages
           pip install nuitka --break-system-packages
 
