@@ -23,7 +23,7 @@ jobs:
       - name: Get latest tag
         id: get-latest
         run: |
-          tag=$(git tag --sort=-v:refname | grep ^v | head -n 1)
+          tag=$(git tag --sort=-v:refname | head -n1)
           echo "Current Release $tag"
           if [[ -z "$tag" ]]; then
             echo "latest=v0.0.1" >> $GITHUB_OUTPUT
