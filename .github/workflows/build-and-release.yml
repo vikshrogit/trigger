@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   auto-tag:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, bullos]
     outputs:
       tag: ${{ steps.set-tag.outputs.new_tag }}
     steps:
