@@ -14,7 +14,7 @@ jobs:
   build-linux:
     runs-on: 
        group: Default
-       labels: [self-hosted, Linux, X64, bullos]
+       labels: [self-hosted, Linux, bullos]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
