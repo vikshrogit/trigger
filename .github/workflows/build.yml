@@ -22,11 +22,11 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-dev gcc python3-requests ccache
+          sudo apt install -y python3-dev gcc python3-requests patchelf ccache
           export PATH="/usr/lib/ccache:$PATH"
           python3 -m pip install --upgrade pip setuptools
-          pip install -r requirements.txt
-          pip install nuitka
+          pip install -r requirements.txt --break-system-packages
+          pip install nuitka --break-system-packages
 
       - name: Build Trigger Binary
         run: |
